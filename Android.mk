@@ -12,6 +12,6 @@ LOCAL_SHARED_LIBRARIES := \
 
 LOCAL_MODULE:= libfmradio.v4l2_rx
 LOCAL_PRELINK_MODULE := false
-LOCAL_MODULE_TAGS := samples
+LOCAL_MODULE_TAGS := optional
 
 include $(BUILD_SHARED_LIBRARY)

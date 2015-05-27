@@ -20,8 +20,8 @@
 #define LOG_TAG "fm_api.cpp"
 
 #ifdef LINUX
-#define LOGI printf
-#define LOGE printf
+#define ALOGI printf
+#define ALOGE printf
 #else
 #include "utils/Log.h"
 #endif
@@ -41,7 +41,7 @@ int get_v4l2_tuner(int fd, struct v4l2_tuner *vt){
 
     ret = ioctl(fd, VIDIOC_G_TUNER, vt);
     if (ret < 0) {
-        LOGE("ioctl VIDIOC_G_TUNER\n");
+        ALOGE("ioctl VIDIOC_G_TUNER\n");
         return -1;
     }
     return 0;
@@ -54,7 +54,7 @@ int set_v4l2_tuner(int fd, struct v4l2_tuner *vt){
 
     ret = ioctl(fd, VIDIOC_S_TUNER, vt);
     if (ret < 0) {
-        LOGE("ioctl VIDIOC_S_TUNER\n");
+        ALOGE("ioctl VIDIOC_S_TUNER\n");
         return -1;
     }
     return 0;
@@ -87,7 +87,7 @@ int get_RDS_cap(int fd){
     ret = ioctl(fd, VIDIOC_QUERYCAP, &vc);
 
     if (ret < 0) {
-        LOGE("ioctl VIDIOC_QUERYCAP\n");
+        ALOGE("ioctl VIDIOC_QUERYCAP\n");
         return -1;
     }
     return (vc.capabilities & V4L2_CAP_RDS_CAPTURE);
@@ -100,7 +100,7 @@ int get_tun_radio_cap(int fd){
     ret = ioctl(fd, VIDIOC_QUERYCAP, &vc);
     
     if (ret < 0) {
-        LOGE("ioctl VIDIOC_QUERYCAP\n");
+        ALOGE("ioctl VIDIOC_QUERYCAP\n");
         return -1;
     }
     return ((vc.capabilities & V4L2_CAP_TUNER) && (vc.capabilities & V4L2_CAP_RADIO));
@@ -109,10 +109,10 @@ int get_tun_radio_cap(int fd){
 int open_dev(char *dev){
     int fd; 
 
-    LOGI("Open default device %s\n", dev);
+    ALOGI("Open default device %s\n", dev);
     fd = open(dev, O_RDONLY | O_NONBLOCK); 
     if (fd < 0) {
-        LOGE("Unable to open %s: %s\n", dev, strerror(errno));
+        ALOGE("Unable to open %s: %s\n", dev, strerror(errno));
         return -1;
     }
     
@@ -122,10 +122,10 @@ int open_dev(char *dev){
 int close_dev(int fd){
     int ret;
 
-    LOGI("Close radio device fd %d\n", fd);
+    ALOGI("Close radio device fd %d\n", fd);
     ret = close(fd); 
     if (ret < 0) {
-        LOGE("Unable to close radio dev fd %d\n", fd);
+        ALOGE("Unable to close radio dev fd %d\n", fd);
         return -1;
     }
 
@@ -141,11 +141,11 @@ int set_volume(int fd, int vol){
 
     ret = ioctl(fd, VIDIOC_S_CTRL, &vc);
     if (ret < 0) {
-        LOGE("ioctl V4L2_CID_AUDIO_VOLUME \n");
+        ALOGE("ioctl V4L2_CID_AUDIO_VOLUME \n");
         return -1;
     }
     
-    LOGI("Radio on at %2.2f%% volume\n", (vol / 655.36));
+    ALOGI("Radio on at %2.2f%% volume\n", (vol / 655.36));
 
     return 0;  
 }
@@ -159,7 +159,7 @@ int set_mute(int fd, int value){
 
     ret = ioctl(fd, VIDIOC_S_CTRL, &vc);
     if (ret < 0) {
-        LOGE("ioctl V4L2_CID_AUDIO_MUTE \n");
+        ALOGE("ioctl V4L2_CID_AUDIO_MUTE \n");
         return -1;
     }
 
@@ -175,11 +175,11 @@ int  set_freq(int fd, int freq){
 
     ret = ioctl(fd, VIDIOC_S_FREQUENCY, &vf);
     if (ret < 0) {
-        LOGE("ioctl VIDIOC_S_FREQUENCY");
+        ALOGE("ioctl VIDIOC_S_FREQUENCY");
         return -1;
     }
 
-    LOGI("Radio set freq to propretary %d\n", freq);
+    ALOGI("Radio set freq to propretary %d\n", freq);
     return freq;
 }
 
@@ -191,11 +191,11 @@ int get_freq(int fd){
 
     ret = ioctl(fd, VIDIOC_G_FREQUENCY, &vf);
     if (ret < 0) {
-        LOGE("ioctl VIDIOC_G_FREQUENCY");
+        ALOGE("ioctl VIDIOC_G_FREQUENCY");
         return -1;
     }
 
-    LOGI("Radio get frequency propretary %d \n", vf.frequency);
+    ALOGI("Radio get frequency propretary %d \n", vf.frequency);
     return vf.frequency;
 }
 
@@ -216,13 +216,13 @@ int get_signal_strength(int fd, struct v4l2_tuner *vt){
 
         totsig += vt->signal;
         perc = (totsig / (65535.0 * i));
-        //LOGI("checking: %3.1f%% (%d/%d), vt.signal %d  \n", perc * 100.0, i, TRIES,  vt->signal);
+        //ALOGI("checking: %3.1f%% (%d/%d), vt.signal %d  \n", perc * 100.0, i, TRIES,  vt->signal);
         }
 
     perc = (totsig / (65535.0 * TRIES));
     rate = perc * 1000.0;   // changed in 0 - 1000 scale
 
-    LOGI("signal strenght in SE scale %d \n", rate); 
+    ALOGI("signal strenght in SE scale %d \n", rate); 
 
     return rate;
 }

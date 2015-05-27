@@ -21,8 +21,8 @@
 #define LOG_NDEBUG 1
 
 #ifdef LINUX
-#define LOGI printf
-#define LOGE printf
+#define ALOGI printf
+#define ALOGE printf
 #else
 #include "utils/Log.h"
 #endif
@@ -90,12 +90,12 @@ static int v4l2_rx_start_func (void **data, const struct fmradio_vendor_callback
   char	*dev = DEFAULT_DEVICE;
   fm_v4l2_data* session;
 
-  LOGI("%s:\n", __FUNCTION__);
-  LOGI("low_freq %d, high_freq %d, default_freq %d, grid %d\n", low_freq, high_freq, default_freq, grid);
+  ALOGI("%s:\n", __FUNCTION__);
+  ALOGI("low_freq %d, high_freq %d, default_freq %d, grid %d\n", low_freq, high_freq, default_freq, grid);
 
   session = malloc(sizeof(fm_v4l2_data));
   if (session== NULL){
-      LOGE("error on malloc");
+      ALOGE("error on malloc");
       return -1;
   }
 
@@ -104,24 +104,24 @@ static int v4l2_rx_start_func (void **data, const struct fmradio_vendor_callback
 
   session->fd = open_dev(dev);
   if (session->fd < 0){
-      LOGE("error on open dev\n");
+      ALOGE("error on open dev\n");
       return -1;
   }
 
   if (get_tun_radio_cap(session->fd) !=1) {
-      LOGE("error on check tunner radio capability");
+      ALOGE("error on check tunner radio capability");
       return -1;
   }
 
   session->vt.index=0;
   if ( get_v4l2_tuner(session->fd,  &session->vt) <0 ){
-      LOGE("error on get V4L tuner\n");
+      ALOGE("error on get V4L tuner\n");
       return -1;
   }
 
   session->fact = get_fact(session->fd, &session->vt);
   if ( session->fact < 0) {
-      LOGE("error on get fact\n");
+      ALOGE("error on get fact\n");
       return -1;
   }
 
@@ -133,17 +133,17 @@ static int v4l2_rx_start_func (void **data, const struct fmradio_vendor_callback
   session->callbacks = callbacks;
 
   if (set_freq(session->fd, session->freq) < 0 ){
-      LOGE("error on set freq\n");
+      ALOGE("error on set freq\n");
       return -1;
   }
 
   if (set_volume(session->fd, DEFAULT_VOLUME)<0){
-      LOGE("error on set volume\n");
+      ALOGE("error on set volume\n");
       return -1;
   }
 
   if (set_mute(session->fd, MUTE_OFF) <0){
-      LOGE("error on mute\n");
+      ALOGE("error on mute\n");
       return -1;
   }
 
@@ -157,7 +157,7 @@ int v4l2_reset(void** session_data)
   fm_v4l2_data* session;
   int ret;
 
-  LOGI("%s:\n", __FUNCTION__);
+  ALOGI("%s:\n", __FUNCTION__);
   session = get_session_data(session_data);  
 
   kill_rds_thread(session);
@@ -176,7 +176,7 @@ int v4l2_reset(void** session_data)
 int v4l2_pause(void** session_data){
   fm_v4l2_data* session;
 
-  LOGI("%s:\n", __FUNCTION__);
+  ALOGI("%s:\n", __FUNCTION__);
   session = get_session_data(session_data);
 
   kill_rds_thread(session);
@@ -186,7 +186,7 @@ int v4l2_pause(void** session_data){
 int v4l2_resume(void** session_data){
   fm_v4l2_data* session;
 
-  LOGI("%s:\n", __FUNCTION__);
+  ALOGI("%s:\n", __FUNCTION__);
   session = get_session_data(session_data);
 
   start_rds_thread(session);
@@ -197,7 +197,7 @@ int v4l2_set_frequency(void** session_data, int frequency){
   fm_v4l2_data* session;  
   int ret;
 
-  LOGI("%s:\n", __FUNCTION__);
+  ALOGI("%s:\n", __FUNCTION__);
   session = get_session_data(session_data);
 
   session->freq = get_proprietary_freq( frequency, session->fact);
@@ -212,7 +212,7 @@ int v4l2_get_frequency (void ** session_data){
   fm_v4l2_data* session;  
   int ret;
 
-  LOGI("%s:\n", __FUNCTION__);
+  ALOGI("%s:\n", __FUNCTION__);
   session = get_session_data(session_data);  
 
   ret = get_freq(session->fd);
@@ -227,7 +227,7 @@ int v4l2_get_frequency (void ** session_data){
 int v4l2_get_threshold (void ** session_data){   
   fm_v4l2_data* session;
 
-  LOGI("%s:\n", __FUNCTION__);
+  ALOGI("%s:\n", __FUNCTION__);
   session = get_session_data(session_data);
   
   return session->threshold;
@@ -236,7 +236,7 @@ int v4l2_get_threshold (void ** session_data){
 int v4l2_set_threshold (void ** session_data, int threshold){
    fm_v4l2_data* session;
 
-   LOGI("%s:\n", __FUNCTION__);
+   ALOGI("%s:\n", __FUNCTION__);
    session = get_session_data(session_data);
    
    session->threshold = threshold;
@@ -247,7 +247,7 @@ int v4l2_get_signal_strength (void ** session_data){
     fm_v4l2_data* session;  
     int ret;
 
-    LOGI("%s:\n", __FUNCTION__);   
+    ALOGI("%s:\n", __FUNCTION__);   
     session = get_session_data(session_data);   
 
     ret = get_signal_strength(session->fd, &session->vt);    
@@ -258,7 +258,7 @@ int v4l2_is_playing_in_stereo (void ** session_data){
     fm_v4l2_data* session;  
     int ret;
 
-    LOGI("%s:\n", __FUNCTION__);
+    ALOGI("%s:\n", __FUNCTION__);
     session = get_session_data(session_data);
 
     ret = get_stereo(session->fd, &session->vt);
@@ -269,7 +269,7 @@ int v4l2_scan (void ** session_data, enum fmradio_seek_direction_t direction){
    fm_v4l2_data* session;
    int increment, rate, freqi, ret;
 
-   LOGI("%s:\n", __FUNCTION__);  
+   ALOGI("%s:\n", __FUNCTION__);  
    session = get_session_data(session_data);
 
    session->scan_band_run=SCAN_RUN;
@@ -279,7 +279,7 @@ int v4l2_scan (void ** session_data, enum fmradio_seek_direction_t direction){
      increment =  session->grid;
 
   freqi = session->freq + increment;         //drop the current frequency
-  LOGI("Starting scanning...\n");
+  ALOGI("Starting scanning...\n");
   while (session->scan_band_run==SCAN_RUN){
 
       ret= set_freq(session->fd, freqi);    
@@ -291,10 +291,10 @@ int v4l2_scan (void ** session_data, enum fmradio_seek_direction_t direction){
       if (rate < 0)
          return -1;
 
-      LOGI("final rate %d > %d \n", rate , session->threshold);
+      ALOGI("final rate %d > %d \n", rate , session->threshold);
 
       if (rate >  session->threshold){
-      LOGI("Found freq, %d\n", freqi);
+      ALOGI("Found freq, %d\n", freqi);
       session->scan_band_run=SCAN_STOP;	
       session->freq = freqi;
       return get_standard_freq(freqi, session->fact);
@@ -306,7 +306,7 @@ int v4l2_scan (void ** session_data, enum fmradio_seek_direction_t direction){
       if ( freqi <  session->low_freq)
           freqi =  session->high_freq;
   }
-  LOGI("End scan\n");
+  ALOGI("End scan\n");
   return 0;
 }
 
@@ -316,7 +316,7 @@ int v4l2_full_scan (void ** session_data, int ** found_freqs, int ** signal_stre
   int freqi, rate;
   int *temp_freq, *temp_strenght;
 
-  LOGI("%s:\n", __FUNCTION__);  
+  ALOGI("%s:\n", __FUNCTION__);  
   session = get_session_data(session_data);
 
   session->scan_band_run=SCAN_RUN; 
@@ -324,11 +324,11 @@ int v4l2_full_scan (void ** session_data, int ** found_freqs, int ** signal_stre
   temp_freq = (int *) malloc(sizeof(int) *MAX_FREQS);      
   temp_strenght = (int *) malloc(sizeof(int) *MAX_FREQS);
   if (temp_freq == NULL || temp_strenght==NULL){
-    LOGE("error on allocate");
+    ALOGE("error on allocate");
     return -1;
   }
 
-  LOGI("Starting full scanning...\n");    
+  ALOGI("Starting full scanning...\n");    
 
   for (freqi =  session->low_freq, founded=0 ; ((freqi < session->high_freq)  && (founded < MAX_FREQS) && (session->scan_band_run==SCAN_RUN)) ; freqi += session->grid){	  		
 
@@ -341,10 +341,10 @@ int v4l2_full_scan (void ** session_data, int ** found_freqs, int ** signal_stre
       if (rate < 0)
           return -1;
 
-      LOGI("final rate %d > %d \n", rate ,session->threshold);
+      ALOGI("final rate %d > %d \n", rate ,session->threshold);
 
       if (rate > session->threshold){
-          LOGI("Founded index %d, freq %d\n", founded, freqi);
+          ALOGI("Founded index %d, freq %d\n", founded, freqi);
           temp_freq[founded]= freqi;
           temp_strenght[founded]= rate;
           founded++;
@@ -354,7 +354,7 @@ int v4l2_full_scan (void ** session_data, int ** found_freqs, int ** signal_stre
   *found_freqs = (int *) malloc(sizeof(int) * founded);
   *signal_strenghts = (int *) malloc(sizeof(int) * founded);
   if (*found_freqs == NULL || *signal_strenghts==NULL){
-    LOGE("error on allocate");
+    ALOGE("error on allocate");
     return -1;
   }
 
@@ -362,10 +362,10 @@ int v4l2_full_scan (void ** session_data, int ** found_freqs, int ** signal_stre
   for (i=0; i<founded; i++){
       (*found_freqs)[i] = get_standard_freq(temp_freq[i], session->fact);
       (*signal_strenghts)[i] = temp_strenght[i];
-      LOGI("Copied index %d, freq %d, signal %d\n",i, (*found_freqs)[i], (*signal_strenghts)[i] );
+      ALOGI("Copied index %d, freq %d, signal %d\n",i, (*found_freqs)[i], (*signal_strenghts)[i] );
   }
 
-  LOGI("End full scan\n");
+  ALOGI("End full scan\n");
   free(temp_freq);
   free(temp_strenght);
   session->scan_band_run=SCAN_STOP;
@@ -376,10 +376,10 @@ int v4l2_full_scan (void ** session_data, int ** found_freqs, int ** signal_stre
 int v4l2_stop_scan(void ** session_data){
   fm_v4l2_data* session;
 
-  LOGI("%s:\n", __FUNCTION__);  
+  ALOGI("%s:\n", __FUNCTION__);  
   session = get_session_data(session_data);
   session->scan_band_run=SCAN_STOP;
-  LOGI("Stop scan value is %d\n", session->scan_band_run);  
+  ALOGI("Stop scan value is %d\n", session->scan_band_run);  
 
   return 1;
 }
@@ -388,7 +388,7 @@ int v4l2_set_force_mono (void ** session_data, int force_mono){
   fm_v4l2_data* session;    
   int ret;
 
-  LOGI("%s:\n", __FUNCTION__);  
+  ALOGI("%s:\n", __FUNCTION__);  
   session = get_session_data(session_data);
 
   ret = set_force_mono(session->fd, &session->vt, force_mono);  
@@ -399,7 +399,7 @@ int v4l2_is_rds_data_supported (void ** session_data){
   fm_v4l2_data* session;  
   int ret;
 
-  LOGI("%s:\n", __FUNCTION__);  
+  ALOGI("%s:\n", __FUNCTION__);  
   session = get_session_data(session_data);
 
   ret = get_RDS_cap(session->fd);  
@@ -410,7 +410,7 @@ int v4l2_is_tuned_to_valid_channel (void ** session_data){
   fm_v4l2_data* session;  
   int signal;  
 
-  LOGI("%s:\n", __FUNCTION__);  
+  ALOGI("%s:\n", __FUNCTION__);  
   session = get_session_data(session_data);      
 
   signal = get_signal_strength(session->fd, &session->vt);          
@@ -433,18 +433,18 @@ void* th_read_rds(void *thread_session_data){
   group = malloc (sizeof(char) * GROUP_SIZE);  
   CLEAN_RDS 
 
-  LOGI("Thread RDS read started..\n");
+  ALOGI("Thread RDS read started..\n");
   
   while (session->thread_rds_run == RDS_THREAD_ON){
 
       ret = read( session->fd, buf, BUFFER_RDS_SIZE);          
       if (ret == -1 && errno == EINTR){
-          LOGE("Error on RDS read\n");
+          ALOGE("Error on RDS read\n");
           pthread_exit(&ret);
       }
 
       if (ret>0){
-           LOGI ("read num bytes %d\n", ret);	//assuming to have always multiple of 3
+           ALOGI ("read num bytes %d\n", ret);	//assuming to have always multiple of 3
 
       for (i =0; i< ret; i+=3){
         b0 = buf[i];
@@ -514,7 +514,7 @@ void* th_read_rds(void *thread_session_data){
 
           if (index==6){
             fmradio_rds_bundle.psn[8] = '\0';
-            LOGI("Event Rds called!\n");
+            ALOGI("Event Rds called!\n");
             (session->callbacks)->on_rds_data_found(&fmradio_rds_bundle, session->freq);
           }
           break;
@@ -529,7 +529,7 @@ void* th_read_rds(void *thread_session_data){
 
   free(buf);
   free(group); 
-  LOGI("Thread RDS read End\n");
+  ALOGI("Thread RDS read End\n");
   pthread_exit(&ret);
   return 0;
 }
@@ -538,18 +538,18 @@ int kill_rds_thread(fm_v4l2_data* session){
   int ret;  
 
   if (session->thread_rds_run == RDS_THREAD_OFF){
-    LOGE("thread RDS is already stopped!\n"); 
+    ALOGE("thread RDS is already stopped!\n"); 
     return 0;
   }
 
   session->thread_rds_run = RDS_THREAD_OFF;  
 
-  LOGI("joining RDS thread...\n");
+  ALOGI("joining RDS thread...\n");
   ret = pthread_join(session->thread_rds, NULL);
     if (ret<0)      
-      LOGE("pthread_join error \n"); 
+      ALOGE("pthread_join error \n"); 
       
-  LOGI("joined RDS thread\n");        
+  ALOGI("joined RDS thread\n");        
   
   return ret;
 }
@@ -559,7 +559,7 @@ int start_rds_thread(fm_v4l2_data* session){
   pthread_attr_t attr;
 
   if (session->thread_rds_run == RDS_THREAD_ON){
-    LOGI("thread RDS is already running!\n");
+    ALOGI("thread RDS is already running!\n");
     return 0;
   }
 
@@ -569,7 +569,7 @@ int start_rds_thread(fm_v4l2_data* session){
   session->thread_rds_run = RDS_THREAD_ON;
   ret = pthread_create( &session->thread_rds, &attr, th_read_rds, (void*) session);
   if (ret<0)
-     LOGE("error on creating RDS thread\n"); 
+     ALOGE("error on creating RDS thread\n"); 
 
   return ret;  
 }
